@@ -510,7 +510,7 @@ class ServiceGenerator {
         if (genParams.length) {
           this.classNameList.push({
             fileName: className,
-            controllerName: className
+            controllerName: className,
           });
         }
         return {
@@ -707,7 +707,7 @@ class ServiceGenerator {
         if (!operationObject) {
           return;
         }
-
+        operationObject.path = p;
         const props = [];
         if (operationObject.parameters) {
           operationObject.parameters.forEach((parameter: any) => {
