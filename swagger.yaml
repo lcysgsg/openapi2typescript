@@ -1,0 +1,220 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: http://localhost:10000/tt-order
+    description: Generated server url
+tags:
+  - name: Image
+    description: 图片管理
+  - name: Login
+    description: 登录接口
+  - name: Kaptcha
+    description: 验证码
+paths:
+  /api/login/updatePassword:
+    post:
+      tags:
+        - Login
+      summary: 修改密码
+      description: newPassword,oldPassword
+      operationId: updatePassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonResult'
+  /api/login/updatePassword2:
+    post:
+      tags:
+        - Login
+      summary: 忘记密码
+      description: phoneCode,password,phone
+      operationId: updatePassword2
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonResult'
+  /api/login/resetPassword:
+    post:
+      tags:
+        - Login
+      summary: 重置密码
+      description: userId
+      operationId: resetPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonResult'
+  /api/login/register:
+    post:
+      tags:
+        - Login
+      summary: 注册
+      description: userName,password,sysType
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRegForm'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonResult'
+  /api/login/logout:
+    post:
+      tags:
+        - Login
+      summary: 注销
+      operationId: logout
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonResult'
+  /api/login/login:
+    post:
+      tags:
+        - Login
+      summary: 登录
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRegForm'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonResult'
+  /api/login/getLoginInfo:
+    post:
+      tags:
+        - Login
+      summary: 获取登录信息
+      operationId: getLoginInfo
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonResult'
+  /api/kaptcha/valid:
+    post:
+      tags:
+        - Kaptcha
+      operationId: validDefaultTime
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonResult'
+  /api/image/uploadImage:
+    post:
+      tags:
+        - Image
+      summary: 图片上传
+      operationId: uploadImage
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - imgFile
+              type: object
+              properties:
+                imgFile:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonResult'
+  /api/kaptcha/render:
+    get:
+      tags:
+        - Kaptcha
+      summary: 获取验证码
+      operationId: render
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JsonResult'
+components:
+  schemas:
+    JsonResult:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        msg:
+          type: string
+        content:
+          type: object
+    LoginRegForm:
+      type: object
+      properties:
+        userName:
+          type: string
+          description: 用户名
+        password:
+          type: string
+          description: 密码
+        code:
+          type: string
+          description: 微信code
+      description: 登录参数

@@ -6,6 +6,7 @@ import converter from 'swagger2openapi';
 import { ServiceGenerator } from './serviceGenerator';
 import { mockGenerator } from './mockGenerator';
 import Log from './log';
+import yaml from 'yamljs';
 
 const getImportStatement = (requestLibPath: string) => {
   if (requestLibPath && requestLibPath.startsWith('import')) {
@@ -79,15 +80,37 @@ const converterSwaggerToOpenApi = (swagger: any) => {
 export const getSchema = async (schemaPath: string) => {
   if (schemaPath.startsWith('http')) {
     try {
-      const json = await fetch(schemaPath).then((rest) => rest.json());
-      return json;
+      try {
+        const json = await fetch(schemaPath).then((rest) => rest.json());
+        return json;
+      } catch (error) {
+        console.log('尝试 yaml 格式');
+        // 不是 json 就是 yaml
+        const json = await fetch(schemaPath)
+          .then((rest) => rest.blob())
+          .then((res) => res.text())
+          .then((yamlAsString) => {
+            const nativeObject = yaml.parse(yamlAsString);
+            return nativeObject;
+          });
+        return json;
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log('fetch openapi error:', error);
     }
     return null;
   }
-  const schema = require(schemaPath);
+  let schema;
+  try {
+    try {
+      schema = require(schemaPath);
+    } catch (error) {
+      schema = yaml.load(schemaPath);
+    }
+  } catch (error) {
+    console.log('schema path openapi error:', error);
+  }
   return schema;
 };
 
