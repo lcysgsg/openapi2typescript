@@ -1,3 +1,8 @@
+## 改变的内容
+
+- [x] 支持 `yaml` 格式
+- [x] 在自定义函数中提供 `path` 字段
+
 ## 介绍
 [![GitHub Repo stars](https://img.shields.io/github/stars/chenshuai2144/openapi2typescript?style=social)](https://github.com/chenshuai2144/openapi2typescript)
 [![npm (scoped)](https://img.shields.io/npm/v/@umijs/openapi)](https://www.npmjs.com/package/@umijs/openapi)
