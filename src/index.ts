@@ -1,12 +1,14 @@
 /* eslint-disable global-require */
 /* eslint-disable import/no-dynamic-require */
-import type { OperationObject } from 'openapi3-ts';
+import http from 'http';
+import https from 'https';
 import fetch from 'node-fetch';
+import type { OperationObject } from 'openapi3-ts';
 import converter from 'swagger2openapi';
-import { ServiceGenerator } from './serviceGenerator';
-import { mockGenerator } from './mockGenerator';
 import Log from './log';
 import yaml from 'yamljs';
+import { mockGenerator } from './mockGenerator';
+import { ServiceGenerator } from './serviceGenerator';
 
 const getImportStatement = (requestLibPath: string) => {
   if (requestLibPath && requestLibPath.startsWith('import')) {
@@ -38,7 +40,7 @@ export type GenerateServiceProps = {
    */
   serversPath?: string;
   /**
-   * openAPI 3.0 的地址
+   * Swagger 2.0 或 OpenAPI 3.0 的地址
    */
   schemaPath?: string;
   /**
@@ -49,16 +51,28 @@ export type GenerateServiceProps = {
   hook?: {
     /** 自定义函数名称 */
     customFunctionName?: (data: OperationObject) => string;
+    /** 自定义类型名称 */
+    customTypeName?: (data: OperationObject) => string;
     /** 自定义类名 */
     customClassName?: (tagName: string) => string;
   };
   namespace?: string;
+
+  /**
+   * 默认为false，true时使用null代替可选
+   */
+  nullable?: boolean;
 
   mockFolder?: string;
   /**
    * 模板文件的文件路径
    */
   templatesFolder?: string;
+
+  /**
+   * 枚举样式
+   */
+  enumStyle?: 'string-literal' | 'enum';
 };
 
 const converterSwaggerToOpenApi = (swagger: any) => {
@@ -79,9 +93,13 @@ const converterSwaggerToOpenApi = (swagger: any) => {
 
 export const getSchema = async (schemaPath: string) => {
   if (schemaPath.startsWith('http')) {
+    const protocol = schemaPath.startsWith('https:') ? https : http;
     try {
       try {
-        const json = await fetch(schemaPath).then((rest) => rest.json());
+        const agent = new protocol.Agent({
+          rejectUnauthorized: false,
+        });
+        const json = await fetch(schemaPath, { agent }).then((rest) => rest.json());
         return json;
       } catch (error) {
         console.log('尝试 yaml 格式');
@@ -128,6 +146,7 @@ export const generateService = async ({
   requestLibPath,
   schemaPath,
   mockFolder,
+  nullable = false,
   ...rest
 }: GenerateServiceProps) => {
   const openAPI = await getOpenAPIConfig(schemaPath);
@@ -136,6 +155,8 @@ export const generateService = async ({
     {
       namespace: 'API',
       requestImportStatement,
+      enumStyle: 'string-literal',
+      nullable,
       ...rest,
     },
     openAPI,

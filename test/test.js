@@ -6,8 +6,18 @@ const openAPI = require('../dist/index');
 
 const gen = async () => {
   await openAPI.generateService({
+    schemaPath: `${__dirname}/test-allof-api.json`,
+    serversPath: './servers-allof',
+  });
+
+  await openAPI.generateService({
     schemaPath: `${__dirname}/example-files/swagger-get-method-params-convert-obj.json`,
     serversPath: './servers',
+  });
+
+  await openAPI.generateService({
+    schemaPath: `${__dirname}/example-files/swagger-schema-contain-blank-symbol.json`,
+    serversPath: './servers/blank-symbol-servers',
   });
 
   await openAPI.generateService({
@@ -32,8 +42,25 @@ const gen = async () => {
                 funName = funName.substring(0, funName.lastIndexOf(suffix));
             }
             return funName;
+        },
+        // 自定义类型名
+        customTypeName: (data) => {
+          const { operationId } = data;
+          const funName = operationId
+            ? operationId[0].toUpperCase() + operationId.substring(1)
+            : '';
+          const tag = data?.tags?.[0];
+
+          return `${tag ? tag : ''}${funName}`;
         }
     }
+  });
+
+  // 支持null类型作为默认值
+  await openAPI.generateService({
+    schemaPath: `${__dirname}/example-files/swagger-get-method-params-convert-obj.json`,
+    serversPath: './servers/support-null',
+    nullable:true
   });
 
   // check 文件生成
