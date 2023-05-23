@@ -120,6 +120,9 @@ const getType = (schemaObject: SchemaObject | undefined, namespace: string = '')
   }
 
   if (numberEnum.includes(type)) {
+    if(type === 'int64'){
+      return 'string';
+    }
     return 'number';
   }
 
