@@ -112,7 +112,11 @@ const getType = (schemaObject: SchemaObject | undefined, namespace: string = '')
   const stringEnum = ['string', 'email', 'password', 'url', 'byte', 'binary'];
 
   if (numberEnum.includes(schemaObject.format)) {
-    type = 'number';
+    if (schemaObject.format === 'int64') {
+      type = 'string';
+    } else {
+      type = 'number';
+    }
   }
 
   if (schemaObject.enum) {
@@ -120,9 +124,6 @@ const getType = (schemaObject: SchemaObject | undefined, namespace: string = '')
   }
 
   if (numberEnum.includes(type)) {
-    if(type === 'int64'){
-      return 'string';
-    }
     return 'number';
   }
 
